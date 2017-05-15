@@ -1,0 +1,2 @@
+recursive-include bullet_dodger/assets *
+recursive-include bullet_dodger/locale *
