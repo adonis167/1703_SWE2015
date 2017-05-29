@@ -1,3 +1,5 @@
+This is for SKKU 자료구조개론 Game Project.
+
 Description
 -----------
 
