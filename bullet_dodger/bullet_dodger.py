@@ -407,7 +407,8 @@ def game_over_screen(score):
 
 
 def main_loop():
-    action = 'start_screen'
+    action = 'start_screen' ########
+
     while action != 'quit':
         if action == 'start_screen':
             action = start_screen()
