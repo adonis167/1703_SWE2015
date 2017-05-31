@@ -8,7 +8,7 @@ from PodSixNet.Channel import Channel
 class Server(asyncore.dispatcher):
     channelClass = Channel
 
-    def __init__(self, channelClass=None, localaddr=("127.0.0.1", 31425), listeners=5):
+    def __init__(self, channelClass=None, localaddr=("yoonjiho.cafe24.com", 31425), listeners=5):
         if channelClass:
             self.channelClass = channelClass
         self._map = {}
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
             sender = asyncore.dispatcher(map=self.server._map)
             sender.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-            sender.connect(("localhost", 31425))
+            sender.connect(("yoonjiho.cafe24.com", 31425))
             self.outgoing = EndPointChannel(sender, map=self.server._map)
 
         def runTest(self):

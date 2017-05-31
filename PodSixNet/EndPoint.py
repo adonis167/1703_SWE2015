@@ -11,7 +11,7 @@ class EndPoint(Channel):
 	The endpoint queues up all network events for other classes to read.
 	"""
 
-    def __init__(self, address=("127.0.0.1", 31425), map=None):
+    def __init__(self, address=("yoonjiho.cafe24.com", 31425), map=None):
         self.address = address
         self.isConnected = False
         self.queue = []
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         def setUp(self):
             class FailEndPoint(EndPoint):
                 def __init__(self):
-                    EndPoint.__init__(self, ("localhost", 31429))
+                    EndPoint.__init__(self, ("yoonjiho.cafe24.com", 31429))
                     self.result = ""
 
                 def Error(self, error):
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                     self.connected = True
 
             self.server = TestServer(channelClass=ServerChannel)
-            self.endpoint = TestEndPoint(("localhost", 31425))
+            self.endpoint = TestEndPoint(("yoonjiho.cafe24.com", 31425))
 
         def runTest(self):
             self.endpoint.DoConnect()
