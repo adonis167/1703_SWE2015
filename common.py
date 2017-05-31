@@ -1,4 +1,7 @@
 import pygame
+import os
+
+ASSETS = os.path.join(os.path.dirname(__file__), 'assets')
 
 MAX_PLAYERS = 2
 
@@ -7,10 +10,28 @@ SCREEN_HEIGHT = 900
 SCREEN_BG_COLOR = (200, 200, 200)
 SCREEN_CAPTION = "Online Game"
 
-PLAYER1_IMG = pygame.image.load("1.png")
-PLAYER2_IMG = pygame.image.load("2.png")
-PLAYER3_IMG = pygame.image.load("3.png")
-PLAYER4_IMG = pygame.image.load("4.png")
+p1_img = os.path.join(ASSETS, '1.png')
+p2_img = os.path.join(ASSETS, '2.png')
+p3_img = os.path.join(ASSETS, '3.png')
+p4_img = os.path.join(ASSETS, '4.png')
+
+GAME_ICON = os.path.join(ASSETS, 'bullet.png')
+
+ground_texture = os.path.join(ASSETS, 'ground.png')
+BG_IMG = pygame.image.load(ground_texture)
+
+FPS = 60
+
+BULLET_FIRE_SOUND = os.path.join(ASSETS, 'gun_fire.ogg')
+GAME_MUSIC = os.path.join(ASSETS, 'Hitman.ogg')
+
+
+
+
+PLAYER1_IMG = pygame.image.load(p1_img)
+PLAYER2_IMG = pygame.image.load(p2_img)
+PLAYER3_IMG = pygame.image.load(p3_img)
+PLAYER4_IMG = pygame.image.load(p4_img)
 
 DISTANCE_BT_PLAYERS = 10
 

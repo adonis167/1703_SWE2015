@@ -7,22 +7,36 @@ from time import sleep
 from pygame.locals import *
 
 import common
+import math
 
-# Test Version by YoonJiho
+
+# Initialize the game
+pygame.init()
+size = width, height = common.SCREEN_WIDTH, common.SCREEN_HEIGHT
+screen = pygame.display.set_mode(size)
+
+pygame.display.set_caption(common.SCREEN_CAPTION)
+pygame.display.set_icon(pygame.image.load(common.GAME_ICON))
+
+pygame.mixer.music.load(common.GAME_MUSIC)
+
+fps_clock = pygame.time.Clock()
+
+# Set the background colour
+bg = common.SCREEN_BG_COLOR
+# Fill the screen with our background colour
+screen.fill(bg)
+
+
+
+
 # Create a new class to hold our game object
 # This extends the connection listener so that we can pump the server for messages
 class OnlineGame(ConnectionListener):
     # Constructor
     def __init__(self):
 
-        # Initialize the game
-        pygame.init()
-        size = width, height = common.SCREEN_WIDTH, common.SCREEN_HEIGHT
-        self.screen = pygame.display.set_mode(size)
-        pygame.display.set_caption(common.SCREEN_CAPTION)
 
-        # Set the background colour
-        self.bg = common.SCREEN_BG_COLOR
 
         # Create the players
         self.players = []
@@ -46,12 +60,6 @@ class OnlineGame(ConnectionListener):
         # Initialize the gameID and player ID
         self.gameID = None
         self.player = None
-
-        # Create the game clock
-        self.clock = pygame.time.Clock()
-
-        # Fill the screen with our background colour
-        self.screen.fill(self.bg)
 
         # Connect to the server
         self.Connect()
@@ -104,9 +112,6 @@ class OnlineGame(ConnectionListener):
 
         # Check if any keys were being pressed
         self.check_keys()
-
-        # Tick the game clock
-        self.clock.tick(60)
 
         # Fill the background
         self.screen.fill(self.bg)
@@ -165,3 +170,17 @@ if __name__ == "__main__":
     # Every tick update the game
     while True:
         og.update()
+        fps_clock.tick(common.FPS)
+        draw_repeating_background(common.BG_IMG)
+
+
+def draw_repeating_background(background_img):
+    background_rect = background_img.get_rect()
+    background_rect_width = background_rect.width
+    background_rect_height = background_rect.height
+    for i in range(int(math.ceil(common.SCREEN_WIDTH / background_rect.width))):
+        for j in range(int(math.ceil(common.SCREEN_HEIGHT / background_rect.height))):
+            screen.blit(background_img, Rect(i * background_rect_width,
+                                             j * background_rect_height,
+                                             background_rect_width,
+                                             background_rect_height))
