@@ -22,10 +22,8 @@ pygame.mixer.music.load(common.GAME_MUSIC)
 
 fps_clock = pygame.time.Clock()
 
-# Set the background colour
-bg = common.SCREEN_BG_COLOR
 # Fill the screen with our background colour
-screen.fill(bg)
+# screen.fill(common.SCREEN_BG_COLOR)th our background colour
 
 
 
@@ -35,8 +33,6 @@ screen.fill(bg)
 class OnlineGame(ConnectionListener):
     # Constructor
     def __init__(self):
-
-
 
         # Create the players
         self.players = []
@@ -114,11 +110,11 @@ class OnlineGame(ConnectionListener):
         self.check_keys()
 
         # Fill the background
-        self.screen.fill(self.bg)
+        # screen.fill(common.SCREEN_BG_COLOR)
 
         # Draw the players
         for p in self.players:
-            self.screen.blit(p.img, p.rect)
+            screen.blit(p.img, p.rect)
 
         # Update the display
         pygame.display.flip()
@@ -160,6 +156,23 @@ class Player(object):
         self.img = img
         self.rect = img.get_rect()
 
+def draw_repeating_background(background_img):
+    background_rect = background_img.get_rect()
+    background_rect_width = background_rect.width
+    background_rect_height = background_rect.height
+    for i in range(int(math.ceil(common.SCREEN_WIDTH / background_rect.width))):
+        for j in range(int(math.ceil(common.SCREEN_HEIGHT / background_rect.height))):
+            screen.blit(background_img, Rect(i * background_rect_width,
+                                             j * background_rect_height,
+                                             background_rect_width,
+                                             background_rect_height))
+
+
+
+
+
+
+
 
 # If the file was run and not imported
 if __name__ == "__main__":
@@ -172,15 +185,3 @@ if __name__ == "__main__":
         og.update()
         fps_clock.tick(common.FPS)
         draw_repeating_background(common.BG_IMG)
-
-
-def draw_repeating_background(background_img):
-    background_rect = background_img.get_rect()
-    background_rect_width = background_rect.width
-    background_rect_height = background_rect.height
-    for i in range(int(math.ceil(common.SCREEN_WIDTH / background_rect.width))):
-        for j in range(int(math.ceil(common.SCREEN_HEIGHT / background_rect.height))):
-            screen.blit(background_img, Rect(i * background_rect_width,
-                                             j * background_rect_height,
-                                             background_rect_width,
-                                             background_rect_height))
