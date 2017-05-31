@@ -6,7 +6,7 @@ from time import sleep
 
 from pygame.locals import *
 
-
+# Test Version by YoonJiho
 # Create a new class to hold our game object
 # This extends the connection listener so that we can pump the server for messages
 class OnlineGame(ConnectionListener):
