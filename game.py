@@ -6,6 +6,8 @@ from time import sleep
 
 from pygame.locals import *
 
+import common
+
 # Test Version by YoonJiho
 # Create a new class to hold our game object
 # This extends the connection listener so that we can pump the server for messages
@@ -15,24 +17,31 @@ class OnlineGame(ConnectionListener):
 
         # Initialize the game
         pygame.init()
-        size = width, height = 600, 600
+        size = width, height = common.SCREEN_WIDTH, common.SCREEN_HEIGHT
         self.screen = pygame.display.set_mode(size)
-        pygame.display.set_caption("Online Game")
+        pygame.display.set_caption(common.SCREEN_CAPTION)
 
         # Set the background colour
-        self.bg = (200, 200, 200)
+        self.bg = common.SCREEN_BG_COLOR
 
         # Create the players
         self.players = []
-        self.players.append(Player(pygame.image.load("1.png")))
-        self.players.append(Player(pygame.image.load("2.png")))
-        self.players.append(Player(pygame.image.load("3.png")))
-        self.players.append(Player(pygame.image.load("4.png")))
+        self.players.append(Player(common.PLAYER1_IMG))
+        self.players.append(Player(common.PLAYER2_IMG))
+        self.players.append(Player(common.PLAYER3_IMG))
+        self.players.append(Player(common.PLAYER4_IMG))
 
-        self.players[1].rect.x = width - self.players[1].rect.width
-        self.players[2].rect.y = height - self.players[2].rect.height
-        self.players[3].rect.x = width - self.players[3].rect.width
-        self.players[3].rect.y = height - self.players[3].rect.height
+        self.players[0].rect.x = common.PLAYER1_POSITION_X
+        self.players[0].rect.y = common.PLAYER1_POSITION_Y
+
+        self.players[1].rect.x = common.PLAYER2_POSITION_X
+        self.players[1].rect.y = common.PLAYER2_POSITION_Y
+
+        self.players[2].rect.x = common.PLAYER3_POSITION_X
+        self.players[2].rect.y = common.PLAYER3_POSITION_Y
+
+        self.players[3].rect.x = common.PLAYER4_POSITION_X
+        self.players[3].rect.y = common.PLAYER4_POSITION_Y
 
         # Initialize the gameID and player ID
         self.gameID = None

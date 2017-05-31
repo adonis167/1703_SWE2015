@@ -2,6 +2,7 @@ from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
 
 from time import sleep
+import common
 
 
 # Create the channel to deal with our incoming requests from the client
@@ -105,12 +106,15 @@ class GameServer(Server):
 class Game(object):
     # Constructor
     def __init__(self, player, gameIndex):
+        width = common.SCREEN_WIDTH
+        height = common.SCREEN_HEIGHT
+
         # Create a list of players
         self.players = []
-        self.players.append(Player(0, 0))
-        self.players.append(Player(550, 0))
-        self.players.append(Player(0, 550))
-        self.players.append(Player(550, 550))
+        self.players.append(Player(common.PLAYER1_POSITION))
+        self.players.append(Player(common.PLAYER2.POSITION))
+        self.players.append(Player(common.PLAYER3_POSITION))
+        self.players.append(Player(common.PLAYER4_POSITION))
 
         # Store the network channel of the first client
         self.player_channels = [player]
@@ -145,4 +149,4 @@ if __name__ == "__main__":
     # Pump the server at regular intervals (check for new requests)
     while True:
         s.Pump()
-        sleep(0.00001)
+        sleep(0.0001)
