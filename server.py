@@ -42,8 +42,6 @@ class GameServer(Server):
     # Function to deal with new connections
     def Connected(self, channel, addr):
 
-        MAX_PLAYERS = 2
-
         print("New connection: {}".format(channel))
 
         # When we receive a new connection
@@ -57,7 +55,7 @@ class GameServer(Server):
             channel.gameID = self.gameIndex
             self.queue = Game(channel, self.gameIndex)
 
-        elif len(self.queue.player_channels) < MAX_PLAYERS - 1:
+        elif len(self.queue.player_channels) < common.MAX_PLAYERS - 1:
             channel.gameID = self.gameIndex
             self.queue.player_channels.append(channel)
 
@@ -106,8 +104,6 @@ class GameServer(Server):
 class Game(object):
     # Constructor
     def __init__(self, player, gameIndex):
-        width = common.SCREEN_WIDTH
-        height = common.SCREEN_HEIGHT
 
         # Create a list of players
         self.players = []
