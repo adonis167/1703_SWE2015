@@ -145,4 +145,4 @@ if __name__ == "__main__":
     # Pump the server at regular intervals (check for new requests)
     while True:
         s.Pump()
-        sleep(0.0001)
+        sleep(0.00001)
