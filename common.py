@@ -1,6 +1,8 @@
 import pygame
 import os
 
+SERVER_ADDRESS ="wesame.co.kr"
+
 ASSETS = os.path.join(os.path.dirname(__file__), 'assets')
 
 MAX_PLAYERS = 4
