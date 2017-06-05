@@ -179,6 +179,7 @@ if __name__ == "__main__":
 
     # Create the game object
     og = OnlineGame()
+    pygame.mixer.music.play(-1)
 
     # Every tick update the game
     while True:

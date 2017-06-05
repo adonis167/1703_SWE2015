@@ -3,7 +3,7 @@ import os
 
 ASSETS = os.path.join(os.path.dirname(__file__), 'assets')
 
-MAX_PLAYERS = 2
+MAX_PLAYERS = 4
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 900
@@ -20,11 +20,11 @@ GAME_ICON = os.path.join(ASSETS, 'bullet.png')
 ground_texture = os.path.join(ASSETS, 'ground.png')
 BG_IMG = pygame.image.load(ground_texture)
 
-FPS = 90
+FPS = 150
 
 BULLET_FIRE_SOUND = os.path.join(ASSETS, 'gun_fire.ogg')
-GAME_MUSIC = os.path.join(ASSETS, 'Hitman.ogg')
-
+# GAME_MUSIC = os.path.join(ASSETS, 'Hitman.ogg')
+GAME_MUSIC = os.path.join(ASSETS, 'bgm.wav')
 
 
 
