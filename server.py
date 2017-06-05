@@ -137,7 +137,7 @@ class Player(object):
 # Start the server, but only if the file wasn't imported
 if __name__ == "__main__":
 
-    print("Server starting on 52.78.1.177...\n")
+    print("Server starting on wesame.co.kr...\n")
 
     # Create a server
     s = GameServer()
