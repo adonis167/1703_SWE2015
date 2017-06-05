@@ -167,13 +167,6 @@ def draw_repeating_background(background_img):
                                              background_rect_width,
                                              background_rect_height))
 
-
-
-
-
-
-
-
 # If the file was run and not imported
 if __name__ == "__main__":
 
