@@ -5,7 +5,7 @@ SERVER_ADDRESS ="wesame.co.kr"
 
 ASSETS = os.path.join(os.path.dirname(__file__), 'assets')
 
-MAX_PLAYERS = 4
+MAX_PLAYERS = 2
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 900
