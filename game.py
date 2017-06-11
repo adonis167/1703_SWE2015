@@ -9,7 +9,6 @@ from pygame.locals import *
 import common
 import math
 
-
 # Initialize the game
 pygame.init()
 size = width, height = common.SCREEN_WIDTH, common.SCREEN_HEIGHT
@@ -21,12 +20,6 @@ pygame.display.set_icon(pygame.image.load(common.GAME_ICON))
 pygame.mixer.music.load(common.GAME_MUSIC)
 
 fps_clock = pygame.time.Clock()
-
-# Fill the screen with our background colour
-# screen.fill(common.SCREEN_BG_COLOR)th our background colour
-
-
-
 
 # Create a new class to hold our game object
 # This extends the connection listener so that we can pump the server for messages
@@ -52,6 +45,9 @@ class OnlineGame(ConnectionListener):
 
         self.players[3].rect.x = common.PLAYER4_POSITION_X
         self.players[3].rect.y = common.PLAYER4_POSITION_Y
+
+        # Create the Bullets
+        self.bullets = pygame.sprite.Group()
 
         # Initialize the gameID and player ID
         self.gameID = None
@@ -109,12 +105,12 @@ class OnlineGame(ConnectionListener):
         # Check if any keys were being pressed
         self.check_keys()
 
-        # Fill the background
-        # screen.fill(common.SCREEN_BG_COLOR)
-
         # Draw the players
         for p in self.players:
             screen.blit(p.img, p.rect)
+
+        # Draw the bullets
+        self.bullets.draw(screen)
 
         # Update the display
         pygame.display.flip()
@@ -139,6 +135,11 @@ class OnlineGame(ConnectionListener):
         self.players[p].rect.x = data['x']
         self.players[p].rect.y = data['y']
 
+    # Create a function to update a player based on a message from the server
+    def Network_bullets(self, data):
+        # Get the player data from the request
+        self.bullets = data['i']
+
     # Create a function that lets us check whether the user has clicked to exit (required to avoid crash)
     def check_exit(self):
         # Check if the user exited
@@ -155,6 +156,16 @@ class Player(object):
         # Set our object fields
         self.img = img
         self.rect = img.get_rect()
+
+
+# Create a class to hold our bullet information
+class Bullet(object):
+    # Constructor
+    def __init__(self, img):
+        # Set our object fields
+        self.img = img
+        self.rect = img.get_rect()
+
 
 def draw_repeating_background(background_img):
     background_rect = background_img.get_rect()

@@ -18,15 +18,16 @@ p3_img = os.path.join(ASSETS, '3.png')
 p4_img = os.path.join(ASSETS, '4.png')
 
 GAME_ICON = os.path.join(ASSETS, 'bullet.png')
+BULLET_IMG = os.path.join(ASSETS, 'bullet.png')
 
 ground_texture = os.path.join(ASSETS, 'ground.png')
 BG_IMG = pygame.image.load(ground_texture)
 
-FPS = 150
+FPS = 60
 
 BULLET_FIRE_SOUND = os.path.join(ASSETS, 'gun_fire.ogg')
-# GAME_MUSIC = os.path.join(ASSETS, 'Hitman.ogg')
-GAME_MUSIC = os.path.join(ASSETS, 'bgm.wav')
+GAME_MUSIC = os.path.join(ASSETS, 'Hitman.ogg')
+# GAME_MUSIC = os.path.join(ASSETS, 'bgm.wav')
 
 
 
