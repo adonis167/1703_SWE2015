@@ -108,7 +108,7 @@ class GameServer(Server):
                 g.player_channels[i].Send(
                     {"action": "position", "player": player, "x": g.players[player].x, "y": g.players[player].y})
 
-    # Create a function to move the players of a game
+    # Create a function to move the bullets of a game
     def move_bullet(self, gameID, player):
 
         # Get the game
@@ -150,6 +150,7 @@ class Game(object):
             if random.randint(1, self.odds) == 1:
                 for _ in range(0, self.bullets_per_gust):
                     self.bullets.add(random_bullet(random.randint(self.min_bullet_speed, self.max_bullet_speed)))
+                    print("a bullet is made.")
             self.bullets.update()
 
 
