@@ -3,12 +3,13 @@ import sys
 
 from PodSixNet.async import poll, asyncore
 from PodSixNet.Channel import Channel
+import common
 
 
 class Server(asyncore.dispatcher):
     channelClass = Channel
 
-    def __init__(self, channelClass=None, localaddr=("wesame.co.kr", 31425), listeners=5):
+    def __init__(self, channelClass=None, localaddr=(common.SERVER_ADDRESS, 31425), listeners=5):
         if channelClass:
             self.channelClass = channelClass
         self._map = {}
@@ -86,7 +87,7 @@ if __name__ == "__main__":
 
             sender = asyncore.dispatcher(map=self.server._map)
             sender.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-            sender.connect(("wesame.co.kr", 31425))
+            sender.connect((common.SERVER_ADDRESS, 31425))
             self.outgoing = EndPointChannel(sender, map=self.server._map)
 
         def runTest(self):

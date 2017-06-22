@@ -1,11 +1,11 @@
-import pygame
-
 from PodSixNet.Channel import Channel
 from PodSixNet.Server import Server
 
 from time import sleep
 import common
 import random
+
+import threading
 
 
 # Create the channel to deal with our incoming requests from the client
@@ -77,6 +77,9 @@ class GameServer(Server):
                 self.queue.player_channels[i].Send(
                     {"action": "startgame", "player": i, "gameID": self.queue.gameID, "velocity": self.velocity})
 
+            g = self.queue
+            g.makingBullets.daemon = True
+            g.makingBullets.start()
 
             # Add the game to the end of the game list
             self.games.append(self.queue)
@@ -86,9 +89,6 @@ class GameServer(Server):
 
             # Increment the game index for the next game
             self.gameIndex += 1
-
-            # Start Making Bullets
-            self.game.start_making_bullets()
 
     # Create a function to move the players of a game
     def move_player(self, x, y, gameID, player):
@@ -108,18 +108,6 @@ class GameServer(Server):
                 g.player_channels[i].Send(
                     {"action": "position", "player": player, "x": g.players[player].x, "y": g.players[player].y})
 
-    # Create a function to move the bullets of a game
-    def move_bullet(self, gameID, player):
-
-        # Get the game
-        g = self.games[gameID]
-
-        # For all the other players send a message to update their position
-        for i in range(0, len(g.player_channels)):
-            # Send a message to update
-            g.player_channels[i].Send(
-                {"action": "bullets", "player": player, "data": g.bullets})
-
 # Create the game class to hold information about any particular game
 class Game(object):
     # Constructor
@@ -131,28 +119,21 @@ class Game(object):
         self.players.append(Player(common.PLAYER3_POSITION_X, common.PLAYER3_POSITION_Y))
         self.players.append(Player(common.PLAYER4_POSITION_X, common.PLAYER4_POSITION_Y))
 
-        # Create a sprite group of bullets
-        self.bullets = pygame.sprite.Group()
-        self.min_bullet_speed = 5
-        self.max_bullet_speed = 30
-        self.bullets_per_gust = 1
-        self.odds = 12
-
         # Store the network channel of the first client
         self.player_channels = [player]
 
         # Set the game id
         self.gameID = gameIndex
 
-    def start_making_bullets(self):
-        while True:
-            sleep(0.0001)
-            if random.randint(1, self.odds) == 1:
-                for _ in range(0, self.bullets_per_gust):
-                    self.bullets.add(random_bullet(random.randint(self.min_bullet_speed, self.max_bullet_speed)))
-                    print("a bullet is made.")
-            self.bullets.update()
+        # Set properties of bullets
+        self.min_bullet_speed = 2
+        self.max_bullet_speed = 10
+        self.bullets_per_gust = 1
+        self.odds = 10
 
+        # Create a pygame.sprite.Group of bullets
+        # self.bullets = []
+        self.makingBullets = MakingBullets(self)
 
 # Create a player class to hold all of our information about a single player
 class Player(object):
@@ -168,21 +149,26 @@ class Player(object):
         self.x += x
         self.y += y
 
+class MakingBullets(threading.Thread):
+    def __init__(self, game):
+        threading.Thread.__init__(self)
+        self.game = game
 
-# class Bullets(object):
-#
-#     bullets = pygame.sprite.Group()
-#     min_bullet_speed = 5
-#     max_bullet_speed = 30
-#     bullets_per_gust = 1
-#     odds = 12
-#
-#     while True:
-#         sleep(0.0001)
-#         if random.randint(1, odds) == 1:
-#             for _ in range(0, bullets_per_gust):
-#                 bullets.add(random_bullet(random.randint(min_bullet_speed, max_bullet_speed)))
-#         bullets.update()
+    def run(self):
+        while True:
+            sleep(0.167)
+
+            if random.randint(1, self.game.odds) == 1:
+                for _ in range(0, self.game.bullets_per_gust):
+                    bullet = random_bullet(random.randint(self.game.min_bullet_speed, self.game.max_bullet_speed))
+
+                # For all the other players send a message on bullets
+                for i in range(0, len(self.game.player_channels)):
+                    # Send a message to update
+                    # for h in range(0, len(self.game.bullets)):
+                        self.game.player_channels[i].Send(
+                            # {"action": "bullets", "x": self.game.bullets[h].x, "y": self.game.bullets[h].y, "hspeed": self.game.bullets[h].hspeed, "vspeed": self.game.bullets[h].vspeed})
+                        {"action": "bullets", "x": bullet.x, "y": bullet.y, "hspeed": bullet.hspeed, "vspeed": bullet.vspeed})
 
 class Bullet(object):
     def __init__(self, x, y, hspeed, vspeed):
@@ -191,11 +177,6 @@ class Bullet(object):
         self.y = y
         self.hspeed = hspeed
         self.vspeed = vspeed
-
-    def update(self):
-        self.x += self.hspeed
-        self.y += self.vspeed
-
 
 def random_bullet(speed):
     random_or = random.randint(1, 4)
