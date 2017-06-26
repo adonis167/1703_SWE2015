@@ -1,7 +1,7 @@
 import pygame
 import os
 
-SERVER_ADDRESS ="localhost"
+SERVER_ADDRESS ="wesame.co.kr"
 
 ASSETS = os.path.join(os.path.dirname(__file__), 'assets')
 ASSETS_UNIT = os.path.join(os.path.dirname(__file__), 'assets/Unit')
@@ -10,7 +10,7 @@ ASSETS_SOUND = os.path.join(os.path.dirname(__file__), 'assets/Sound')
 ASSETS_MISSILE = os.path.join(os.path.dirname(__file__), 'assets/Missile')
 ASSETS_ITEM = os.path.join(os.path.dirname(__file__), 'assets/Items')
 
-MAX_PLAYERS = 2
+MAX_PLAYERS = 4
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 900
