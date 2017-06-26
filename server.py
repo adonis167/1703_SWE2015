@@ -21,6 +21,26 @@ class ClientChannel(Channel):
 
         # Call the move function of the server to update this game
         self._server.move_player(x, y, gameID, player)
+    def Network_detect(self, data):
+        gameID = data['gameID']
+        dead = data['dead']
+        bullet = data['bullet']
+        self._server.remove_dead_guy(gameID, dead)
+        self._server.remove_dead_bullet(gameID, bullet)
+    def Network_removeBullet(self, data):
+        gameID = data['gameID']
+        bullet = data['bullet']
+        self._server.remove_dead_bullet(gameID, bullet)
+    def Network_removeItem(self, data):
+        gameID = data['gameID']
+        item = data['item']
+        player = data['player']
+        self._server.remove_item(gameID, player, item)
+    def Network_itemEffect(self, data):
+        gameID = data['gameID']
+        player = data['player']
+        kind = data['kind']
+        self._server.item_effect(gameID, player, kind)
 
 # Create a new server for our game
 class GameServer(Server):
@@ -39,7 +59,7 @@ class GameServer(Server):
         self.gameIndex = 0
 
         # Set the velocity of our player
-        self.velocity = 10
+        self.velocity = 15
 
     # Function to deal with new connections
     def Connected(self, channel, addr):
@@ -108,6 +128,52 @@ class GameServer(Server):
                 g.player_channels[i].Send(
                     {"action": "position", "player": player, "x": g.players[player].x, "y": g.players[player].y})
 
+    def remove_dead_guy(self, gameID, dead):
+        g = self.games[gameID]
+        # del g.players[dead]
+        g.players[dead] = None
+        g.deadguys.append(dead)
+
+        # If all the players in game are killed
+        if len(g.deadguys) == common.MAX_PLAYERS:
+            for i in range(0, len(g.player_channels)):
+                # Send a message to update
+                for h in range(0, len(g.deadguys)):
+                    g.player_channels[i].Send({"action": "end", "player": g.deadguys[h]})
+        else:
+            # For all the other players send a message to update their position
+            for i in range(0, len(g.player_channels)):
+
+                # If we aren't looking at the player that was updated
+                if not i == dead:
+                    # Send a message to update
+                    g.player_channels[i].Send(
+                        {"action": "deadguy", "dead": dead})
+
+    def remove_dead_bullet(self, gameID, bullet):
+        g = self.games[gameID]
+        for i in range(0, len(g.player_channels)):
+            # Send a message to update
+            g.player_channels[i].Send({"action": "deadbullet", "bullet": bullet})
+
+    def remove_item(self, gameID, player, item):
+        g = self.games[gameID]
+        for i in range(0, len(g.player_channels)):
+            # If we aren't looking at the player that was updated
+            if not i == player:
+                # Send a message to update
+                g.player_channels[i].Send({"action": "deaditem", "item": item})
+
+    def item_effect(self, gameID, player, kind):
+        g = self.games[gameID]
+        if kind == 5:
+            newKind = random.randint(0, 4)
+        else:
+            newKind = kind
+        for i in range(0, len(g.player_channels)):
+            # Send a message to update
+            g.player_channels[i].Send({"action": "itemEffect", "player": player, "kind": newKind})
+
 # Create the game class to hold information about any particular game
 class Game(object):
     # Constructor
@@ -125,15 +191,29 @@ class Game(object):
         # Set the game id
         self.gameID = gameIndex
 
+        # Set bullet number
+        self.bulletNum = 1
+
         # Set properties of bullets
-        self.min_bullet_speed = 2
-        self.max_bullet_speed = 10
-        self.bullets_per_gust = 1
+        self.min_bullet_speed = 3
+        self.max_bullet_speed = 20
         self.odds = 10
+
+        # Set properties of guided bullets
+        self.guided_min_speed = 3
+        self.guided_max_speed = 10
+        self.guided_odds = 30
+
+        # Set properties of items
+        self.item_odds = 20
 
         # Create a pygame.sprite.Group of bullets
         # self.bullets = []
         self.makingBullets = MakingBullets(self)
+
+        # The number of dead players
+        self.deadguys = []
+
 
 # Create a player class to hold all of our information about a single player
 class Player(object):
@@ -149,6 +229,7 @@ class Player(object):
         self.x += x
         self.y += y
 
+
 class MakingBullets(threading.Thread):
     def __init__(self, game):
         threading.Thread.__init__(self)
@@ -157,38 +238,111 @@ class MakingBullets(threading.Thread):
     def run(self):
         while True:
             sleep(0.167)
+            if len(self.game.deadguys) == common.MAX_PLAYERS:
+                print("The process of making bullets ends.")
+                return
 
+            # Basic missile
             if random.randint(1, self.game.odds) == 1:
-                for _ in range(0, self.game.bullets_per_gust):
-                    bullet = random_bullet(random.randint(self.game.min_bullet_speed, self.game.max_bullet_speed))
+                print(self.game.bulletNum, " : A basic missile is made.")
+                bullet = random_bullet(self.game.bulletNum, random.randint(self.game.min_bullet_speed, self.game.max_bullet_speed))
+                self.game.bulletNum += 1
 
                 # For all the other players send a message on bullets
                 for i in range(0, len(self.game.player_channels)):
                     # Send a message to update
                     # for h in range(0, len(self.game.bullets)):
-                        self.game.player_channels[i].Send(
-                            # {"action": "bullets", "x": self.game.bullets[h].x, "y": self.game.bullets[h].y, "hspeed": self.game.bullets[h].hspeed, "vspeed": self.game.bullets[h].vspeed})
-                        {"action": "bullets", "x": bullet.x, "y": bullet.y, "hspeed": bullet.hspeed, "vspeed": bullet.vspeed})
+                    self.game.player_channels[i].Send(
+                        # {"action": "bullets", "x": self.game.bullets[h].x, "y": self.game.bullets[h].y, "hspeed": self.game.bullets[h].hspeed, "vspeed": self.game.bullets[h].vspeed})
+                        {"action": "bullets", "bulletNum": bullet.bulletNum, "x": bullet.x, "y": bullet.y, "hspeed": bullet.hspeed,
+                         "vspeed": bullet.vspeed})
+
+            # Guided missile
+            if random.randint(1, self.game.guided_odds) == 1:
+                print(self.game.bulletNum, " : A guided missile is made.")
+                guided_bullet = random_guided(self.game.bulletNum, self.game.players, self.game.deadguys, random.randint(self.game.guided_min_speed, self.game.guided_max_speed))
+                self.game.bulletNum += 1
+
+                # For all the other players send a message on bullets
+                for i in range(0, len(self.game.player_channels)):
+                    # Send a message to update
+                    self.game.player_channels[i].Send(
+                        {"action": "guided", "bulletNum": guided_bullet.bulletNum, "x": guided_bullet.x, "y": guided_bullet.y, "squarex": guided_bullet.squarex,
+                         "squarey": guided_bullet.squarey, "speed": guided_bullet.speed, "target": guided_bullet.target})
+
+            # Item
+            if random.randint(1, self.game.item_odds) == 1:
+                print("An item is made.")
+                item = Item(self.game.bulletNum, random.randint(0, 5), random.randint(30, common.SCREEN_WIDTH - 30), random.randint(30, common.SCREEN_HEIGHT - 30))
+                self.game.bulletNum += 1
+                # For all the other players send a message on bullets
+                for i in range(0, len(self.game.player_channels)):
+                    # Send a message to update
+                    self.game.player_channels[i].Send({"action": "item", "bulletNum": item.bulletNum, "kind": item.kind, "x": item.x, "y": item.y})
+
+class Guided(object):
+    def __init__(self, bulletNum, x, y, squarex, squarey, speed, target):
+        super(Guided, self).__init__()
+        self.x = x
+        self.y = y
+        self.squarex = squarex
+        self.squarey = squarey
+        self.speed = speed
+        self.target = target
+        self.bulletNum = bulletNum
+
+def random_guided(bulletNum, players, deadguys, speed):
+    random_or = random.randint(1, 4)
+    while True:
+        tmpChk = False
+        random_target = random.randint(0, common.MAX_PLAYERS-1)
+        for deadguy in deadguys:
+            if random_target == deadguy:
+                tmpChk = True
+                break
+        if tmpChk == False:
+            break
+
+    squarex = players[random_target].x
+    squarey = players[random_target].y
+
+    if random_or == 1:  # Up -> Down
+        return Guided(bulletNum, random.randint(0, common.SCREEN_WIDTH), 0, squarex, squarey, speed, random_target)
+    elif random_or == 2:  # Right -> Left
+        return Guided(bulletNum, common.SCREEN_WIDTH, random.randint(0, common.SCREEN_HEIGHT), squarex, squarey, speed, random_target)
+    elif random_or == 3:  # Down -> Up
+        return Guided(bulletNum, random.randint(0, common.SCREEN_WIDTH), common.SCREEN_HEIGHT, squarex, squarey, speed, random_target)
+    elif random_or == 4:  # Left -> Right
+        return Guided(bulletNum, 0, random.randint(0, common.SCREEN_HEIGHT), squarex, squarey, speed, random_target)
+
 
 class Bullet(object):
-    def __init__(self, x, y, hspeed, vspeed):
+    def __init__(self, bulletNum, x, y, hspeed, vspeed):
         super(Bullet, self).__init__()
         self.x = x
         self.y = y
         self.hspeed = hspeed
         self.vspeed = vspeed
+        self.bulletNum = bulletNum
 
-def random_bullet(speed):
+def random_bullet(bulletNum, speed):
     random_or = random.randint(1, 4)
     if random_or == 1:  # Up -> Down
-        return Bullet(random.randint(0, common.SCREEN_WIDTH), 0, 0, speed)
+        return Bullet(bulletNum, random.randint(0, common.SCREEN_WIDTH), 0, 0, speed)
     elif random_or == 2:  # Right -> Left
-        return Bullet(common.SCREEN_WIDTH, random.randint(0, common.SCREEN_HEIGHT), -speed, 0)
+        return Bullet(bulletNum, common.SCREEN_WIDTH, random.randint(0, common.SCREEN_HEIGHT), -speed, 0)
     elif random_or == 3:  # Down -> Up
-        return Bullet(random.randint(0, common.SCREEN_WIDTH), common.SCREEN_HEIGHT, 0, -speed)
+        return Bullet(bulletNum, random.randint(0, common.SCREEN_WIDTH), common.SCREEN_HEIGHT, 0, -speed)
     elif random_or == 4:  # Left -> Right
-        return Bullet(0, random.randint(0, common.SCREEN_HEIGHT), speed, 0)
+        return Bullet(bulletNum, 0, random.randint(0, common.SCREEN_HEIGHT), speed, 0)
 
+class Item(object):
+    def __init__(self, bulletNum, kind, x, y):
+        super(Item, self).__init__()
+        self.bulletNum = bulletNum
+        self.kind = kind
+        self.x = x
+        self.y = y
 
 # Start the server, but only if the file wasn't imported
 if __name__ == "__main__":
@@ -201,4 +355,4 @@ if __name__ == "__main__":
     # Pump the server at regular intervals (check for new requests)
     while True:
         s.Pump()
-        sleep(0.0001)
+        sleep(0.00001)
